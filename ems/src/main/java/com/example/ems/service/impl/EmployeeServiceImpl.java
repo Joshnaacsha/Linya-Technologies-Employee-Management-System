@@ -18,11 +18,10 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
 
-    private EmployeeRepository employeeRepository;
+    private final EmployeeRepository employeeRepository;
 
     @Override
     public EmployeeDto createEmployee(EmployeeDto employeeDto) {
-
         Employee employee = EmployeeMapper.mapToEmployee(employeeDto);
         Employee savedEmployee = employeeRepository.save(employee);
         return EmployeeMapper.mapToEmployeeDto(savedEmployee);
@@ -32,21 +31,23 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeDto getEmployeeById(Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(
-                        () -> new ResourceNotFoundException("Employee is not found with te given id : " + employeeId));
+                        () -> new ResourceNotFoundException("Employee not found with the given id: " + employeeId));
         return EmployeeMapper.mapToEmployeeDto(employee);
     }
 
     @Override
     public List<EmployeeDto> getAllEmployees() {
         List<Employee> employees = employeeRepository.findAll();
-        return employees.stream().map((employee) -> EmployeeMapper.mapToEmployeeDto(employee))
+        return employees.stream()
+                .map(EmployeeMapper::mapToEmployeeDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public EmployeeDto updateEmployee(Long employeeId, EmployeeDto updatedEmployee) {
-        Employee employee = employeeRepository.findById(employeeId).orElseThrow(
-                () -> new ResourceNotFoundException("Employee is not found with te given id : " + employeeId));
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Employee not found with the given id: " + employeeId));
         employee.setFirstName(updatedEmployee.getFirstName());
         employee.setLastName(updatedEmployee.getLastName());
         employee.setEmail(updatedEmployee.getEmail());
@@ -58,10 +59,15 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void deleteEmployee(Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(
-                        () -> new ResourceNotFoundException("Employee is not found with te given id : " + employeeId));
-
+                        () -> new ResourceNotFoundException("Employee not found with the given id: " + employeeId));
         employeeRepository.deleteById(employeeId);
-
     }
 
+    @Override
+    public List<EmployeeDto> searchEmployees(String searchTerm) {
+        List<Employee> employees = employeeRepository.searchEmployees(searchTerm);
+        return employees.stream()
+                .map(EmployeeMapper::mapToEmployeeDto)
+                .collect(Collectors.toList());
+    }
 }

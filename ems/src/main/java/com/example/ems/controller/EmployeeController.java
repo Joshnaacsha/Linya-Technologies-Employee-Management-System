@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.ems.dto.EmployeeDto;
@@ -61,6 +62,12 @@ public class EmployeeController {
     public ResponseEntity<String> deleteEmployee(@PathVariable("id") Long employeeId) {
         employeeService.deleteEmployee(employeeId);
         return ResponseEntity.ok("Employee information deleted successfully.");
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<EmployeeDto>> searchEmployees(@RequestParam("q") String searchTerm) {
+        List<EmployeeDto> employees = employeeService.searchEmployees(searchTerm);
+        return ResponseEntity.ok(employees);
     }
 
 }
